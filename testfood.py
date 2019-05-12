@@ -24,7 +24,7 @@ import urllib.request
 class_to_ix = {}
 ix_to_class = {}
 #chuyen file classes.txt thanh mang chua cac class
-link='~/CNN/food-101/'
+link='/home/deeplearning/CNN/food-101/'
 with open(link+'meta/classes.txt', 'r') as txt:
     classes = [l.strip() for l in txt.readlines()]
     class_to_ix = dict(zip(classes, range(len(classes))))
@@ -32,7 +32,7 @@ with open(link+'meta/classes.txt', 'r') as txt:
     class_to_ix = {v: k for k, v in ix_to_class.items()}
 sorted_class_to_ix = collections.OrderedDict(sorted(class_to_ix.items()))
 
-model = load_model(filepath='~/CNN/saved/Food101/trained model/train3/model_InceptionV3.29-0.71-0.83.hdf5')
+model = load_model(filepath='/home/deeplearning/CNN/saved/Food101/trained model/train3/model_InceptionV3.29-0.71-0.83.hdf5')
 # model = load_model(filepath=link+'trained model/model_inceptionV3.17-0.65-0.85.hdf5')
 # with open(link+'trained model/json/model.json','r') as f:
 #     model=model_from_json(f.read())
@@ -62,17 +62,17 @@ def center_crop(x, center_crop_size, **kwargs):
 def predict_10_crop(img, top_n=5,debug=False):
     flipped_X = np.fliplr(img)
     crops = [
-        img[:299, :299, :],  # Upper Left
-        img[:299, img.shape[1] - 299:, :],  # Upper Right
-        img[img.shape[0] - 299:, :299, :],  # Lower Left
-        img[img.shape[0] - 299:, img.shape[1] - 299:, :],  # Lower Right
-        center_crop(img, (299, 299)),
+            imresize(img[:299, :299, :],(384,384)),  # Upper Left
+                    imresize(img[:299, img.shape[1] - 299:, :],(384,384)),  # Upper Right
+                            imresize(img[img.shape[0] - 299:, :299, :],(384,384)),  # Lower Left
+                                    imresize(img[img.shape[0] - 299:, img.shape[1] - 299:, :],(384,384)),  # Lower Right
+                                            imresize(center_crop(img, (299, 299)),(384,384)),
 
-        flipped_X[:299, :299, :],
-        flipped_X[:299, flipped_X.shape[1] - 299:, :],
-        flipped_X[flipped_X.shape[0] - 299:, :299, :],
-        flipped_X[flipped_X.shape[0] - 299:, flipped_X.shape[1] - 299:, :],
-        center_crop(flipped_X, (299, 299))
+                                                    imresize(flipped_X[:299, :299, :],(384,384)),
+                                                            imresize(flipped_X[:299, flipped_X.shape[1] - 299:, :],(384,384)),
+                                                                    imresize(flipped_X[flipped_X.shape[0] - 299:, :299, :],(384,384)),
+                                                                            imresize(flipped_X[flipped_X.shape[0] - 299:, flipped_X.shape[1] - 299:, :],(384,384)),
+                                                                                    imresize(center_crop(flipped_X, (299, 299)),(384,384))
     ]
 
     y_pred = model.predict(np.array(crops))
@@ -139,7 +139,7 @@ else:
     for ix in range(len(test_dir_files)):
         if ix % 1000 == 0:
             print(ix)
-        value=getImage(link + 'test/' + test_dir_classes[ix] + '/' + test_dir_files[ix])
+        value=getImage(link + 'images/' + test_dir_classes[ix] + '/' + test_dir_files[ix])
         if value is not None:
             preds_10_crop[ix] = predict_10_crop(value)
 
